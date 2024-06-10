@@ -1,69 +1,60 @@
 from fastapi import APIRouter, HTTPException,Depends
 from schema.classroomSchema import RequestClassroom,Response
-from service.classroomService import create_classroom,delete_classroom,update_classroom,get_classroom_by_id,get_classrooms
-from config.config import sessionlocal
-from sqlalchemy.orm import Session
+from service.classroomService import ClassroomService
 from typing import Annotated
+from fastapi import status
+from sqlalchemy.orm.exc import NoResultFound
 
 router = APIRouter()
 
 
-def get_db():
-    try:
-        db = sessionlocal()
-        yield db
-    finally:
-        db.close()
         
-db_dependency = Annotated[Session,Depends(get_db)]      
+dependency = Annotated[ClassroomService,Depends()]      
 
 
 # get all classrooms end point
-@router.get("/classrooms")
-async def get_all_classrooms(db: db_dependency):
-    try:
-        _classrooms = get_classrooms(db=db)
-        return Response(code="200", status="OK",message="Succes fetch all data", result=_classrooms).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=400,detail="Fail to get data")
+@router.get("/")
+async def get_all(classroom_service: dependency):
+    _classrooms = classroom_service.get_classrooms()
+    return _classrooms
+     
  
     
 # get classroom by id end point
-@router.get("/classrooms/{classroom_id}")
-async def get_by_id(classroom_id: int, db: db_dependency):
+@router.get("/{classroom_id}")
+async def get(classroom_id: int, classroom_service: dependency):
     try:
-        _classroom = get_classroom_by_id(classroom_id=classroom_id,db=db)
-        return Response(code="200", status="OK",message="Succes fetch all data", result=_classroom).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=400,detail="Fail to get data")
+        _classroom = classroom_service.get_classroom_by_id(classroom_id=classroom_id)
+        return _classroom
+    except NoResultFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
     
     
 # create classroom end point
-@router.post("/classrooms/create")
-async def create(classr: RequestClassroom, db: db_dependency):
-    try:
-        create_classroom(db=db,classroom=classr.parameter)
-        return Response(code="200", status="OK",message="Classroom created Successfully", result=None).dict(exclude_none=True)
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500,detail="Fail to create data")
-  
+@router.post("/create")
+async def create(classr: RequestClassroom, classroom_service: dependency):
+    _classroom = classroom_service.create_classroom(classroom=classr)
+    return _classroom
+   
     
 # delete classroom end point
-@router.delete("/classrooms/delete/{classroom_id}")
-async def delete(classroom_id: int ,db: db_dependency):
+@router.delete("/delete/{classroom_id}")
+async def delete(classroom_id: int , classroom_service: dependency):
     try:
-        delete_classroom(db=db,classroom_id=classroom_id)
-        return Response(code="200", status="OK",message="Success delete data", result={}).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=500,detail="Fail to delete data")
+        _classroom = classroom_service.delete_classroom(classroom_id=classroom_id)
+        return _classroom
+    except NoResultFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
         
         
 # update classroom end point
-@router.patch("/classrooms/update/{classroom_id}")
-async def update(classroom_id: int, classr: RequestClassroom, db: db_dependency):
+@router.patch("/update/{classroom_id}")
+async def update(classroom_id: int, classr: RequestClassroom, classroom_service: dependency):
     try:
-        _classroom = update_classroom(db=db,classroom_id=classroom_id,name=classr.parameter.name)
-        return Response(code="200",status="OK",message ="Succes update data", result =_classroom).dict(exclude_none = True)
+        _classroom = classroom_service.update_classroom(
+            classroom_id=classroom_id,
+            name=classr.name
+            )
+        return _classroom
     except:
-        raise HTTPException(status_code=500,detail="Fail to update data")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Fail to update data")

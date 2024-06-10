@@ -1,70 +1,64 @@
 from fastapi import APIRouter, HTTPException,Depends
 from schema.subjectSchema import RequestSubject,Response
-from service.subjectService import create_subject,delete_subject,update_subject,get_subject_by_id,get_subjects
+from service.subjectService import SubjectService
 from config.config import sessionlocal
 from sqlalchemy.orm import Session
 from typing import Annotated
+from fastapi import status
+from sqlalchemy.orm.exc import NoResultFound
 
 router = APIRouter()
 
 
-def get_db():
-    try:
-        db = sessionlocal()
-        yield db
-    finally:
-        db.close()
         
-db_dependency = Annotated[Session,Depends(get_db)]      
+dependency = Annotated[SubjectService,Depends()]      
         
         
 # get all subjects end point
-@router.get("/subjects")
-async def get_all_subjects(db: db_dependency):
-    try:
-        _subjects = get_subjects(db=db)
-        return Response(code="200", status="OK",message="Succes fetch all data", result=_subjects).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=400,detail="Fail to get data")
+@router.get("/")
+async def get_all(subject_service: dependency):
+    _subjects = subject_service.get_subjects()
+    return _subjects
+        
     
     
 # get subject by id end point 
-@router.get("/subjects/{subject_id}")
-async def get_by_id(subject_id: int,db: db_dependency):
+@router.get("/{subject_id}")
+async def get_by_id(subject_id: int,subject_service: dependency):
     try:
-        _subject = get_subject_by_id(subject_id=subject_id,db=db)
-        return Response(code="200", status="OK",message="Succes fetch all data", result=_subject).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=400,detail="Fail to get data")
+        _subject = subject_service.get_subject_by_id(subject_id=subject_id,)
+        return _subject
+    except NoResultFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
     
 
 # create subject end point
-@router.post("/subjects/create")
-async def create(sub: RequestSubject, db: db_dependency):
-    try:
-        create_subject(db=db,subject=sub.parameter)
-        return Response(code="200", status="OK",message="Subject created Successfully", result=None).dict(exclude_none=True)
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500,detail="Fail to create data")
-    
+@router.post("/create")
+async def create(sub: RequestSubject, subject_service: dependency):
+    _subject = subject_service.create_subject(subject=sub)
+    return _subject
+       
 
 # delete subject end point
-@router.delete("/subjects/delete/{subject_id}")
-async def delete(subject_id: int, db: db_dependency):
+@router.delete("/delete/{subject_id}")
+async def delete(subject_id: int, subject_service: dependency):
     try:
-        delete_subject(db=db,subject_id=subject_id)
-        return Response(code="200", status="OK",message="Success delete data", result={}).dict(exclude_none=True)
-    except:
-        raise HTTPException(status_code=500,detail="Fail to delete data")
+        _subject = subject_service.delete_subject(subject_id=subject_id)
+        return _subject
+    except NoResultFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=str(e))
     
  
 # update subject end point   
-@router.patch("/subjects/update/{subject_id}")
-async def update(subject_id: int, sub: RequestSubject , db: db_dependency):
+@router.patch("/update/{subject_id}")
+async def update(subject_id: int, sub: RequestSubject , subject_service: dependency):
     try:
-        _subject = update_subject(db=db,subject_id=subject_id,name=sub.parameter.name,
-                       semester=sub.parameter.semester,carrer_id=sub.parameter.carrer_id)
-        return Response(code="200",status="OK",message ="Succes update data", result =_subject).dict(exclude_none = True)
+        _subject = subject_service.update_subject(
+            subject_id=subject_id
+            ,name=sub.name,
+            semester=sub.semester,
+            carrer_id=sub.carrer_id
+            )
+        return _subject
     except:
-        raise HTTPException(status_code=500,detail="Fail to update data")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Fail to update data")

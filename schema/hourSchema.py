@@ -16,8 +16,8 @@ class HourSchema(BaseModel):
         from_attributes = True
         
         
-class RequestHour(BaseModel):
-    parameter: HourSchema = Field(...)
+class RequestHour(HourSchema):
+    pass
     
 
 class Response(GenericModel,Generic[T]):

@@ -14,8 +14,8 @@ class CarrerSchema(BaseModel):
         from_attributes = True
         
         
-class RequestCarrer(BaseModel):
-    parameter: CarrerSchema = Field(...)
+class RequestCarrer(CarrerSchema):
+    pass
     
     
     

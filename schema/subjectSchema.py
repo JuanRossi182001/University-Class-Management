@@ -14,8 +14,8 @@ class SubjectSchema(BaseModel):
         from_attributes = True
         
 
-class RequestSubject(BaseModel):
-    parameter: SubjectSchema = Field(...)
+class RequestSubject(SubjectSchema):
+    pass
     
     
 class Response(GenericModel,Generic[T]):

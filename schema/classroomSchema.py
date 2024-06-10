@@ -13,8 +13,8 @@ class ClassroomSchema(BaseModel):
         from_attributes = True
         
         
-class RequestClassroom(BaseModel):
-    parameter: ClassroomSchema = Field(...)
+class RequestClassroom(ClassroomSchema):
+    pass
     
     
     
