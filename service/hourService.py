@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import and_
 from typing import Annotated
 from fastapi.param_functions import Depends
-from router.db.connection import get_db
+from config.db.connection import get_db
 from sqlalchemy.orm.exc import NoResultFound
 
 

@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException,Depends
-from schema.subjectSchema import RequestSubject,Response
+from schema.subjectSchema import RequestSubject
 from service.subjectService import SubjectService
-from config.config import sessionlocal
-from sqlalchemy.orm import Session
 from typing import Annotated
 from fastapi import status
 from sqlalchemy.orm.exc import NoResultFound
