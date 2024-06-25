@@ -66,11 +66,8 @@ class UserService():
         to_encode.update({'exp': expire})
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITH)
         return encoded_jwt
-    """ encode = {'sub': username,'id': user_id}
-        expires = datetime.utcnow() + expires_delta
-        encode.update({'exp':expires})
-        return jwt.encode(encode,SECRET_KEY, algorithm=ALGORITH)
-        """
+    
+    
     async def get_current_user(token: Annotated[str,Depends(oauth_bearer)]):
         payload = jwt.decode(token,SECRET_KEY)
         username: str = payload.get('sub')
