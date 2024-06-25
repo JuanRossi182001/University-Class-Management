@@ -19,6 +19,11 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from config.config import base
+from model.carrer import Carrer
+from model.classroom import Classroom
+from model.hour import Hour
+from model.subject import Subject
+from model.user import User
 target_metadata = base.metadata
 
 # other values from the config, defined by the needs of env.py,
