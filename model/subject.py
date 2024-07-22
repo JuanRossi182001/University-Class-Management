@@ -4,14 +4,14 @@ from sqlalchemy.orm import relationship
 
 
 class Subject(base):
-    __tablename__ = "subjects"
+    __tablename__ = "Subjects"
     
     
     id = Column(Integer, primary_key=True)
     name = Column(String)
     semester = Column(String)
     
-    carrer_id = Column(Integer, ForeignKey('carrers.id'))
+    carrer_id = Column(Integer, ForeignKey('Carrers.id'))
     carrer = relationship('Carrer', back_populates='subjects')
     Hour = relationship('Hour', back_populates='Subject')
     

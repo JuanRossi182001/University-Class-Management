@@ -1,15 +1,15 @@
 from config.config import base
-from sqlalchemy import Integer,Column,DateTime,ForeignKey
+from sqlalchemy import Integer,Column,ForeignKey,TIMESTAMP
 from sqlalchemy.orm import relationship
 
 class Hour(base):
     __tablename__ = "Hours"
     
     id = Column(Integer, primary_key=True)
-    start_hour = Column(DateTime)
-    end_hour = Column(DateTime)
+    start_hour = Column(TIMESTAMP(timezone=True))
+    end_hour = Column(TIMESTAMP(timezone=True))
     
-    subject_id = Column(Integer, ForeignKey('subjects.id'))
+    subject_id = Column(Integer, ForeignKey('Subjects.id'))
     Subject = relationship("Subject", back_populates="Hour")
     
     classroom_id = Column(Integer, ForeignKey('Classrooms.id'))

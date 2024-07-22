@@ -3,7 +3,7 @@ from sqlalchemy import Column,Integer,String
 from sqlalchemy.orm import relationship
 
 class Carrer(base):
-    __tablename__ = "carrers"
+    __tablename__ = "Carrers"
     
     id = Column(Integer,primary_key=True)
     name = Column(String)

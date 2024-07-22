@@ -1,21 +1,27 @@
 from fastapi import APIRouter, HTTPException, Depends
 from schema.carrerSchema import RequestCarrer
 from service.carrerService import CarrerService
-from sqlalchemy.orm import Session
 from typing import Annotated
 from fastapi import status
 from sqlalchemy.orm.exc import NoResultFound
-
+from service.tokenHandler import TokenHandler
+from model.role import Role
+from model.user import User
+from service.userService import get_current_user
 router = APIRouter()
 
 
 
 dependency = Annotated[CarrerService,Depends()]
-
+user_dependency = Annotated[User,Depends(get_current_user)]
 
 # get all carrers end point
 @router.get("/")
-async def get_all(carrer_service: dependency):
+@TokenHandler.role_required([Role.ADMIN])
+async def get_all(user: user_dependency,carrer_service: dependency):
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Authentication failed")
     _carrers = carrer_service.get_carrers()
     return _carrers
     
@@ -23,7 +29,11 @@ async def get_all(carrer_service: dependency):
     
 # get carrer by id end point
 @router.get("/{carrer_id}")
-async def get(carrer_id: int, carrer_servie: dependency):
+@TokenHandler.role_required([Role.ADMIN])
+async def get(user: user_dependency,carrer_id: int, carrer_servie: dependency):
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Authentication failed")
     try:
         _carrer = carrer_servie.get_carrer_by_id(carrer_id=carrer_id)
         return _carrer
@@ -35,15 +45,23 @@ async def get(carrer_id: int, carrer_servie: dependency):
     
 # create carrer end point
 @router.post("/create")
-async def create(carr: RequestCarrer, carrer_service: dependency):
-    _carrer = carrer_service.create_carrer(carrer=carr)
-    return _carrer
+@TokenHandler.role_required([Role.ADMIN])
+async def create(user: user_dependency,carr: RequestCarrer, carrer_service: dependency):
+     if user is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Authentication failed")
+     _carrer = carrer_service.create_carrer(carrer=carr)
+     return _carrer
      
         
     
 # delete carrer end point
 @router.delete("/delete/{carrer_id}")
-async def delete(carrer_id: int, carrer_service: dependency):
+@TokenHandler.role_required([Role.ADMIN])
+async def delete(user: user_dependency,carrer_id: int, carrer_service: dependency):
+    if user is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Authentication failed")
     try:
         _carrer = carrer_service.delete_carrer(carrer_id=carrer_id)
         return _carrer
@@ -54,7 +72,11 @@ async def delete(carrer_id: int, carrer_service: dependency):
 
 # update carrer end point
 @router.patch("/update/{carrer_id}")
-async def update(carrer_id: int, carr: RequestCarrer, carrer_service: dependency):
+@TokenHandler.role_required([Role.ADMIN])
+async def update(user:user_dependency,carrer_id: int, carr: RequestCarrer, carrer_service: dependency):
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Authentication failed")
     try:
         _carrer = carrer_service.update_carrer(
             carrer_id=carrer_id,

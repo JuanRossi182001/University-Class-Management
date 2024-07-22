@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel
 from typing import TypeVar,Optional,Generic
 from pydantic.generics import GenericModel
 from datetime import datetime

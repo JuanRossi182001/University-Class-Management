@@ -26,21 +26,6 @@ def upgrade() -> None:
     sa.Column('duration_in_years', sa.INTEGER(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('Classrooms',
-    sa.Column('id', sa.INTEGER(), nullable=False),
-    sa.Column('name', sa.VARCHAR(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('Hours',
-    sa.Column('id', sa.INTEGER(), nullable=False),
-    sa.Column('start_hour', sa.DATETIME(), nullable=True),
-    sa.Column('end_hour', sa.DATETIME(), nullable=True),
-    sa.Column('subject_id', sa.INTEGER(), nullable=True),
-    sa.Column('classroom_id', sa.INTEGER(), nullable=True),
-    sa.ForeignKeyConstraint(['classroom_id'], ['Classrooms.id'], ),
-    sa.ForeignKeyConstraint(['subject_id'], ['Subjects.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('Subjects',
     sa.Column('id', sa.INTEGER(), nullable=False),
     sa.Column('name', sa.VARCHAR(), nullable=True),
@@ -49,6 +34,22 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['carrer_id'], ['Carrers.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('Classrooms',
+    sa.Column('id', sa.INTEGER(), nullable=False),
+    sa.Column('name', sa.VARCHAR(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('Hours',
+    sa.Column('id', sa.INTEGER(), nullable=False),
+    sa.Column('start_hour', sa.TIMESTAMP(), nullable=True),
+    sa.Column('end_hour', sa.TIMESTAMP(), nullable=True),
+    sa.Column('subject_id', sa.INTEGER(), nullable=True),
+    sa.Column('classroom_id', sa.INTEGER(), nullable=True),
+    sa.ForeignKeyConstraint(['classroom_id'], ['Classrooms.id'], ),
+    sa.ForeignKeyConstraint(['subject_id'], ['Subjects.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    
     
     
     # ### end Alembic commands ###
