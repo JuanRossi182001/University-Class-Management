@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from schema.classroomSchema import ClassroomSchema
+from schema.classroomSchema import ClassroomSchema,ClassroomResponse
 from model.classroom import Classroom
-from typing import Annotated
+from typing import Annotated,List
 from fastapi.param_functions import Depends
 from config.db.connection import get_db
 from sqlalchemy.orm.exc import NoResultFound
@@ -14,26 +14,27 @@ class ClassroomService():
     
 
     # get all classrooms
-    def get_classrooms(self) -> list:
-        return self.db.query(Classroom).all()
+    def get_classrooms(self) -> List[ClassroomResponse]:
+        classrooms_list = self.db.query(Classroom).all()
+        return [ClassroomResponse.model_validate(classroom) for classroom in classrooms_list]
 
 
     # get classroom by id
-    def get_classroom_by_id(self, classroom_id:int) -> Classroom:
+    def get_classroom_by_id(self, classroom_id:int) -> ClassroomResponse:
         _classroom = self.db.query(Classroom).filter(Classroom.id == classroom_id).first()
         if not _classroom:
             raise NoResultFound(f"Error, classroom {classroom_id} not found")
-        return _classroom
+        return ClassroomResponse.model_validate(_classroom)
         
         
         
     # create a new classroom
-    def create_classroom(self, classroom: ClassroomSchema) -> ClassroomSchema:
+    def create_classroom(self, classroom: ClassroomSchema) -> ClassroomResponse:
         _classroom = Classroom(**classroom.model_dump())
         self.db.add(_classroom)
         self.db.commit()
         self.db.refresh(_classroom)
-        return ClassroomSchema.model_validate(_classroom)
+        return ClassroomResponse.model_validate(_classroom)
         
             
 
@@ -48,10 +49,10 @@ class ClassroomService():
         
         
     # update Classroom
-    def update_classroom(self, classroom_id: int, name: str) -> ClassroomSchema:
+    def update_classroom(self, classroom_id: int, name: str) -> ClassroomResponse:
             _classroom = self.get_classroom_by_id(classroom_id=classroom_id)
             _classroom.name = name
             self.db.commit()
             self.db.refresh(_classroom)
-            return ClassroomSchema.model_validate(_classroom)
+            return ClassroomResponse.model_validate(_classroom)
         

@@ -13,6 +13,16 @@ class CarrerSchema(BaseModel):
         orm_mode = True
         from_attributes = True
         
+
+class CarrerResponse(BaseModel):
+    name: Optional[str] = None
+    duration_in_years: Optional[int] = None
+    
+    class Config:
+        orm_mode = True
+        from_attributes = True
+    
+        
         
 class RequestCarrer(CarrerSchema):
     pass

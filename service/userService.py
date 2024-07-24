@@ -31,7 +31,7 @@ class UserService():
         
         
     # get user by id
-    def get_user_by_id(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: int) -> UserResponse:
         _user = self.db.query(User).filter(User.id == user_id).first()
         if not _user:
             raise NoResultFound

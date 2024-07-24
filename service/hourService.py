@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from model.hour import  Hour
-from schema.hourSchema import HourSchema
+from schema.hourSchema import HourSchema,HourResponse
 from fastapi import HTTPException
 from datetime import datetime
 from sqlalchemy import and_
-from typing import Annotated
+from typing import Annotated,List
 from fastapi.param_functions import Depends
 from config.db.connection import get_db
 from sqlalchemy.orm.exc import NoResultFound
@@ -16,19 +16,21 @@ class HourService():
         self.db = db
 
     # get all hours
-    def get_hours(self) -> list:
-        return self.db.query(Hour).all()
+    def get_hours(self) -> List[HourResponse]:
+        hour_list = self.db.query(Hour).all()
+        return [HourResponse.model_validate(hour) for hour in hour_list]
+        
 
     # get hour by id
-    def get_hour_by_id(self, hour_id: int) -> Hour:
+    def get_hour_by_id(self, hour_id: int) -> HourResponse:
         _hour = self.db.query(Hour).filter(Hour.id == hour_id).first()
         if not _hour:
             raise NoResultFound(f"Error, hour {hour_id} not found")
-        return _hour
+        return HourResponse.model_validate(_hour)
         
         
     # create hour
-    def create_hour(self, hour: HourSchema) -> HourSchema:
+    def create_hour(self, hour: HourSchema) -> HourResponse:
             if self.comprobation(hour=hour):
                 raise HTTPException(status_code=422, detail="Error, The schedule overlaps with another schedule in the same classroom.")
             
@@ -36,7 +38,7 @@ class HourService():
             self.db.add(_hour)
             self.db.commit()
             self.db.refresh(_hour)
-            return HourSchema.model_validate(_hour)
+            return HourResponse.model_validate(_hour)
         
         
         
@@ -52,7 +54,7 @@ class HourService():
         
     # update hour
     def update_hour(self,hour_id:int,start_hour:datetime,end_hour:datetime,
-                    subject_id:int,classroom_id:int) -> HourSchema:
+                    subject_id:int,classroom_id:int) -> HourResponse:
         
             _hour = self.get_hour_by_id(hour_id=hour_id)
             
@@ -72,7 +74,7 @@ class HourService():
             _hour.classroom_id = classroom_id
             self.db.commit()
             self.db.refresh(_hour)
-            return HourSchema.model_validate(_hour)
+            return HourResponse.model_validate(_hour)
        
             
             

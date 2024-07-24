@@ -15,6 +15,17 @@ class HourSchema(BaseModel):
         orm_mode = True
         from_attributes = True
         
+class HourResponse(BaseModel):
+    start_hour: Optional[datetime] = None
+    end_hour: Optional[datetime] = None
+    subject_id: Optional[int] = None
+    classroom_id: Optional[int] = None
+    
+    class Config:
+        orm_mode = True
+        from_attributes = True
+    
+        
         
 class RequestHour(HourSchema):
     pass
